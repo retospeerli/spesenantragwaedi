@@ -19,15 +19,8 @@ function todayCH() {
   return d.toLocaleDateString("de-CH", { year: "numeric", month: "2-digit", day: "2-digit" });
 }
 
-function buildAddressBlock({ street, zip, city }) {
-  const lines = [];
-  if (street?.trim()) lines.push(street.trim());
-  const zipCity = [zip?.trim(), city?.trim()].filter(Boolean).join(" ");
-  if (zipCity) lines.push(zipCity);
-  return lines.join("\n");
-}
-
 function computeMobileAnnual(pensumPct) {
+  // Art.12: CHF 250 / year proportional to pensum
   return 250 * (pensumPct / 100);
 }
 
@@ -60,40 +53,31 @@ function setStatus(id, msg, ms = 0) {
 }
 
 // ===============================
-// Generator
+// Generator (exact layout requested)
 // ===============================
 function generateEmailText() {
   const fullName = $("fullName").value.trim() || "[Vorname Nachname]";
   const role = $("role").value.trim() || "[Funktion]";
   const pensumPct = clampInt($("pensum").value, 1, 100, 100);
 
-  const senderEmail = $("senderEmail").value.trim();
-  const senderStreet = $("senderStreet").value.trim();
-  const senderZip = $("senderZip").value.trim();
-  const senderCity = $("senderCity").value.trim();
-
   const includeMobile = $("chkMobile").checked;
   const includeMobility = $("chkMobility").checked;
 
-  const recipientBlock = "Eintrachtstrasse 24\n8820 Wädenswil";
-  const senderBlock = buildAddressBlock({ street: senderStreet, zip: senderZip, city: senderCity });
   const { total, parts } = computeTotals({ pensumPct, includeMobile, includeMobility });
 
   const partsLines = parts.length
     ? parts.map(p => `- ${p.label}: ${fmtCHF(p.amount)}`).join("\n")
     : "- (keine Pauschalen ausgewählt)";
 
-  const signatureLines = [
-    fullName,
-    role,
-    senderBlock ? senderBlock : null,
-    senderEmail ? senderEmail : null
-  ].filter(Boolean).join("\n");
+  // Exact header block (no email address in body)
+  const headerBlock =
+`Schulverwaltung
+Stefan Bättig
+Eintrachtstrasse 24
+8820 Wädenswil`;
 
   const body =
-`An: Stefan Bättig <stefan.baettig@pswaedenswil>
-Adresse:
-${recipientBlock}
+`${headerBlock}
 
 Datum: ${todayCH()}
 
@@ -105,7 +89,7 @@ Hiermit beantrage ich die Ausrichtung der pauschalen Spesenentschädigungen gem�
 
 Name: ${fullName}
 Funktion: ${role}
-Anstellungsgrad: ${pensumPct}%
+Anstellungsgrad: vgl. Pensenvereinbarung
 
 Beantragte Pauschalen:
 ${partsLines}
@@ -115,7 +99,6 @@ Total (jährlich): ${fmtCHF(total)}
 Ich bitte um Bestätigung der Auszahlung (inkl. Stichtag/Abrechnungsmodus) sowie um kurze Rückmeldung, falls ergänzende Angaben benötigt werden.
 
 Freundliche Grüsse
-${signatureLines}
 `;
 
   $("emailText").value = body;
@@ -158,10 +141,7 @@ function openOutlookMail() {
     return;
   }
 
-  // mailto URL encoding
   const url = `mailto:${encodeURIComponent(to)}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-
-  // Some clients have length limits; still best effort.
   window.location.href = url;
   setStatus("outlookStatus", "Mailfenster wird geöffnet…", 1500);
 }
@@ -221,7 +201,7 @@ function initDictation() {
       setTimeout(() => { if (isDictating) setStatus("dictStatus", "Diktieren läuft…"); }, 600);
     }
   };
-};
+}
 
 function insertAtCursor(textarea, text) {
   const start = textarea.selectionStart ?? textarea.value.length;
@@ -252,7 +232,7 @@ function stopDictation() {
 // Wiring
 // ===============================
 function resetFields() {
-  ["fullName","role","pensum","senderEmail","senderStreet","senderZip","senderCity"].forEach(id => $(id).value = "");
+  ["fullName","role","pensum"].forEach(id => $(id).value = "");
   $("chkMobile").checked = true;
   $("chkMobility").checked = true;
   $("emailText").value = "";
