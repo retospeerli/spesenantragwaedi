@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Spesen-Textgenerator (PSW)</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <main class="wrap">
+    <header class="header">
+      <h1>Spesen-Textgenerator</h1>
+      <p class="sub">
+        Generiert einen E-Mail-Fliesstext inkl. Mobiltelefon- und Mobilitätspauschale. Text ist editierbar + Diktierfunktion.
+      </p>
+    </header>
+
+    <section class="card">
+      <h2>Absenderdaten</h2>
+
+      <div class="grid">
+        <label>
+          Vorname Nachname
+          <input id="fullName" type="text" placeholder="z.B. Reto Beispiel" autocomplete="name" />
+        </label>
+
+        <label>
+          Funktion / Stelle
+          <input id="role" type="text" placeholder="z.B. Lehrperson / Klassenassistenz" />
+        </label>
+
+        <label>
+          Anstellungsgrad (%)
+          <input id="pensum" type="number" min="1" max="100" step="1" placeholder="z.B. 80" />
+        </label>
+
+        <label>
+          E-Mail (optional)
+          <input id="senderEmail" type="email" placeholder="z.B. vorname.nachname@..." autocomplete="email" />
+        </label>
+      </div>
+
+      <div class="grid">
+        <label class="span2">
+          Strasse + Nr. (optional)
+          <input id="senderStreet" type="text" placeholder="z.B. Musterstrasse 5" />
+        </label>
+
+        <label>
+          PLZ (optional)
+          <input id="senderZip" type="text" placeholder="z.B. 8820" />
+        </label>
+
+        <label>
+          Ort (optional)
+          <input id="senderCity" type="text" placeholder="z.B. Wädenswil" />
+        </label>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>Pauschalen</h2>
+
+      <div class="checks">
+        <label class="check">
+          <input id="chkMobile" type="checkbox" checked />
+          Mobiltelefonpauschale (Art. 12): CHF 250.–/Jahr × Pensum
+        </label>
+
+        <label class="check">
+          <input id="chkMobility" type="checkbox" checked />
+          Mobilitätspauschale: CHF 150.–/Jahr (fix)
+        </label>
+      </div>
+
+      <div class="hint">
+        <strong>Berechnung:</strong> Mobiltelefonpauschale wird proportional zum Pensum berechnet (z.B. 80% → CHF 200.–/Jahr).
+      </div>
+
+      <div class="actions">
+        <button id="btnGenerate" type="button">Text generieren</button>
+        <button id="btnReset" type="button" class="ghost">Felder zurücksetzen</button>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>E-Mail-Text (editierbar)</h2>
+
+      <div class="toolbar">
+        <button id="btnCopy" type="button">In Zwischenablage kopieren</button>
+        <button id="btnOutlook" type="button" title="Öffnet den Standard-Mailclient (typisch Outlook)">Per Outlook versenden</button>
+
+        <span id="copyStatus" class="status" aria-live="polite"></span>
+        <span id="outlookStatus" class="status" aria-live="polite"></span>
+
+        <span class="spacer"></span>
+
+        <button id="btnDictate" type="button" class="ghost">🎙️ Diktieren starten</button>
+        <button id="btnStopDictate" type="button" class="ghost" disabled>⏹️ Stop</button>
+        <span id="dictStatus" class="status" aria-live="polite"></span>
+      </div>
+
+      <textarea id="emailText" rows="16" spellcheck="true"
+        placeholder="Hier erscheint der E-Mail-Fliesstext. Du kannst ihn frei bearbeiten oder diktieren."></textarea>
+
+      <p class="small">
+        Tipp: Klicke ins Textfeld, positioniere den Cursor und diktiere — der Text wird am Cursor eingefügt.
+      </p>
+    </section>
+
+    <footer class="footer">
+      <p class="small">
+        Empfängeradresse fix hinterlegt: Eintrachtstrasse 24, 8820 Wädenswil.
+      </p>
+    </footer>
+  </main>
+
+  <script src="app.js"></script>
+</body>
+</html>
