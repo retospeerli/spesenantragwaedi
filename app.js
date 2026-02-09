@@ -1,6 +1,3 @@
-// ===============================
-// Helpers
-// ===============================
 const $ = (id) => document.getElementById(id);
 
 function clampInt(n, min, max, fallback) {
@@ -20,10 +17,8 @@ function todayCH() {
 }
 
 function computeMobileAnnual(pensumPct) {
-  // Art.12: CHF 250 / year proportional to pensum
   return 250 * (pensumPct / 100);
 }
-
 function computeMobilityAnnual() {
   return 150;
 }
@@ -32,24 +27,40 @@ function computeTotals({ pensumPct, includeMobile, includeMobility }) {
   let total = 0;
   const parts = [];
 
+  let mobile = 0;
+  let mobility = 0;
+
   if (includeMobile) {
-    const mobile = computeMobileAnnual(pensumPct);
+    mobile = computeMobileAnnual(pensumPct);
     total += mobile;
     parts.push({ label: "Mobiltelefonpauschale (jährlich)", amount: mobile });
   }
-
   if (includeMobility) {
-    const mobility = computeMobilityAnnual();
+    mobility = computeMobilityAnnual();
     total += mobility;
     parts.push({ label: "Mobilitätspauschale (jährlich)", amount: mobility });
   }
 
-  return { total, parts };
+  return { total, parts, mobile, mobility };
 }
 
-function setStatus(id, msg, ms = 0) {
-  $(id).textContent = msg;
-  if (ms > 0) setTimeout(() => ($(id).textContent = ""), ms);
+function setStatus(id, msg, cls = "", ms = 0) {
+  const el = $(id);
+  el.className = `status ${cls}`.trim();
+  el.textContent = msg;
+  if (ms > 0) setTimeout(() => { el.textContent = ""; el.className = "status"; }, ms);
+}
+
+function updateSummary() {
+  const pensumPct = clampInt($("pensum").value, 1, 100, 100);
+  const includeMobile = $("chkMobile").checked;
+  const includeMobility = $("chkMobility").checked;
+
+  const { total, mobile, mobility } = computeTotals({ pensumPct, includeMobile, includeMobility });
+
+  $("sumMobile").textContent = includeMobile ? fmtCHF(mobile) : "—";
+  $("sumMobility").textContent = includeMobility ? fmtCHF(mobility) : "—";
+  $("sumTotal").textContent = (includeMobile || includeMobility) ? fmtCHF(total) : "—";
 }
 
 // ===============================
@@ -69,7 +80,6 @@ function generateEmailText() {
     ? parts.map(p => `- ${p.label}: ${fmtCHF(p.amount)}`).join("\n")
     : "- (keine Pauschalen ausgewählt)";
 
-  // Exact header block (no email address in body)
   const headerBlock =
 `Schulverwaltung
 Stefan Bättig
@@ -102,6 +112,7 @@ Freundliche Grüsse
 `;
 
   $("emailText").value = body;
+  setStatus("copyStatus", "Text aktualisiert.", "ok", 1200);
 }
 
 // ===============================
@@ -110,20 +121,20 @@ Freundliche Grüsse
 async function copyToClipboard() {
   const text = $("emailText").value;
   if (!text.trim()) {
-    setStatus("copyStatus", "Nichts zu kopieren.", 1500);
+    setStatus("copyStatus", "Bitte zuerst Text generieren.", "warn", 1600);
     return;
   }
   try {
     await navigator.clipboard.writeText(text);
-    setStatus("copyStatus", "Kopiert ✓", 1200);
+    setStatus("copyStatus", "Kopiert ✓", "ok", 1200);
   } catch {
     try {
       $("emailText").focus();
       $("emailText").select();
       const ok = document.execCommand("copy");
-      setStatus("copyStatus", ok ? "Kopiert ✓" : "Kopieren fehlgeschlagen.", 1500);
+      setStatus("copyStatus", ok ? "Kopiert ✓" : "Kopieren fehlgeschlagen.", ok ? "ok" : "warn", 1500);
     } catch {
-      setStatus("copyStatus", "Kopieren fehlgeschlagen (Browserrechte).", 1800);
+      setStatus("copyStatus", "Kopieren fehlgeschlagen (Browserrechte).", "warn", 1800);
     }
   }
 }
@@ -137,25 +148,24 @@ function openOutlookMail() {
   const body = $("emailText").value.trim();
 
   if (!body) {
-    setStatus("outlookStatus", "Bitte zuerst „Text generieren“.", 1800);
+    setStatus("outlookStatus", "Bitte zuerst Text generieren.", "warn", 1800);
     return;
   }
 
   const url = `mailto:${encodeURIComponent(to)}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
   window.location.href = url;
-  setStatus("outlookStatus", "Mailfenster wird geöffnet…", 1500);
+  setStatus("outlookStatus", "Mailfenster wird geöffnet…", "ok", 1500);
 }
 
 // ===============================
 // Dictation (Web Speech API)
 // ===============================
 let recognition = null;
-let isDictating = false;
 
 function initDictation() {
   const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
   if (!SpeechRecognition) {
-    setStatus("dictStatus", "Diktieren nicht verfügbar (Browser).");
+    setStatus("dictStatus", "Diktieren nicht verfügbar (Browser).", "warn");
     $("btnDictate").disabled = true;
     return;
   }
@@ -168,21 +178,19 @@ function initDictation() {
   let finalChunk = "";
 
   recognition.onstart = () => {
-    isDictating = true;
     $("btnDictate").disabled = true;
     $("btnStopDictate").disabled = false;
-    setStatus("dictStatus", "Diktieren läuft…");
+    setStatus("dictStatus", "Diktieren läuft…", "");
   };
 
   recognition.onerror = (e) => {
-    setStatus("dictStatus", `Diktierfehler: ${e.error}`);
+    setStatus("dictStatus", `Diktierfehler: ${e.error}`, "warn");
   };
 
   recognition.onend = () => {
-    isDictating = false;
     $("btnDictate").disabled = false;
     $("btnStopDictate").disabled = true;
-    setStatus("dictStatus", "");
+    setStatus("dictStatus", "", "");
     finalChunk = "";
   };
 
@@ -193,12 +201,11 @@ function initDictation() {
       if (event.results[i].isFinal) finalChunk += transcript;
       else interim += transcript;
     }
-    if (interim.trim()) setStatus("dictStatus", `…${interim.trim()}`);
+    if (interim.trim()) setStatus("dictStatus", `…${interim.trim()}`, "");
     if (finalChunk.trim()) {
       insertAtCursor($("emailText"), finalChunk);
       finalChunk = "";
-      setStatus("dictStatus", "✓ eingefügt");
-      setTimeout(() => { if (isDictating) setStatus("dictStatus", "Diktieren läuft…"); }, 600);
+      setStatus("dictStatus", "✓ eingefügt", "ok", 700);
     }
   };
 }
@@ -232,25 +239,36 @@ function stopDictation() {
 // Wiring
 // ===============================
 function resetFields() {
-  ["fullName","role","pensum"].forEach(id => $(id).value = "");
+  ["fullName","role","pensum","senderEmail"].forEach(id => $(id).value = "");
   $("chkMobile").checked = true;
   $("chkMobility").checked = true;
   $("emailText").value = "";
   setStatus("copyStatus", "");
   setStatus("outlookStatus", "");
   setStatus("dictStatus", "");
+  updateSummary();
 }
 
 document.addEventListener("DOMContentLoaded", () => {
+  // buttons
   $("btnGenerate").addEventListener("click", generateEmailText);
   $("btnCopy").addEventListener("click", copyToClipboard);
   $("btnOutlook").addEventListener("click", openOutlookMail);
   $("btnReset").addEventListener("click", resetFields);
 
+  // live summary
+  ["pensum","chkMobile","chkMobility"].forEach(id => {
+    $(id).addEventListener("input", updateSummary);
+    $(id).addEventListener("change", updateSummary);
+  });
+  updateSummary();
+
+  // dictation
   initDictation();
   $("btnDictate").addEventListener("click", startDictation);
   $("btnStopDictate").addEventListener("click", stopDictation);
 
+  // enter convenience
   $("pensum").addEventListener("keydown", (e) => {
     if (e.key === "Enter") generateEmailText();
   });
