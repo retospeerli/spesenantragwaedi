@@ -4,8 +4,91 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Spesen-Textgenerator (PSW)</title>
-  <link rel="stylesheet" href="style.css" />
+
+  <!-- Optional: falls du style.css behalten willst, lass das drin -->
+  <!-- <link rel="stylesheet" href="./style.css" /> -->
+
+  <style>
+    :root{
+      --bg:#f6f8fb;
+      --card:#ffffff;
+      --text:#0f172a;
+      --muted:#475569;
+      --muted2:#64748b;
+      --line:#e2e8f0;
+      --line2:#cbd5e1;
+      --primary:#1d4ed8;
+      --primary2:#1e40af;
+      --shadow:0 10px 30px rgba(15,23,42,.08);
+      --radius:14px;
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;
+      background:var(--bg);
+      color:var(--text);
+      font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial;
+      line-height:1.45;
+    }
+    .wrap{max-width:1120px;margin:0 auto;padding:28px 16px 64px}
+    .topbar{
+      display:flex;align-items:center;justify-content:space-between;gap:16px;
+      padding:14px 16px;border:1px solid var(--line);background:#fff;border-radius:var(--radius);
+      box-shadow:var(--shadow);
+    }
+    .brand{display:flex;align-items:center;gap:12px;min-width:240px}
+    .logo{width:38px;height:38px;border-radius:10px;background:linear-gradient(135deg,#1d4ed8,#60a5fa);box-shadow:0 8px 18px rgba(29,78,216,.22)}
+    .brand h1{margin:0;font-size:18px;letter-spacing:.2px}
+    .brand p{margin:2px 0 0;color:var(--muted2);font-size:13px}
+    .meta{display:flex;align-items:center;gap:10px;flex-wrap:wrap;justify-content:flex-end}
+    .pill{display:inline-flex;align-items:center;gap:8px;padding:8px 10px;border:1px solid var(--line);background:#f8fafc;border-radius:999px;font-size:13px;color:var(--muted)}
+    .main{margin-top:16px;display:grid;grid-template-columns:1.35fr .65fr;gap:16px;align-items:start}
+    .section{display:grid;gap:16px}
+    .card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);padding:18px}
+    .card h2{margin:0 0 8px;font-size:16px}
+    .desc{margin:0 0 14px;color:var(--muted2);font-size:13.5px}
+    .formgrid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+    label{display:flex;flex-direction:column;gap:6px;color:var(--muted);font-size:13px}
+    input,textarea{
+      width:100%;padding:11px 12px;border:1px solid var(--line2);border-radius:12px;background:#fff;color:var(--text);font-size:14px;
+    }
+    input::placeholder,textarea::placeholder{color:#94a3b8}
+    input:focus,textarea:focus{outline:3px solid rgba(29,78,216,.18);border-color:rgba(29,78,216,.55)}
+    .checks{display:grid;gap:10px;margin-top:8px}
+    .check{display:flex;gap:10px;padding:12px;border:1px solid var(--line);border-radius:12px;background:#fbfdff}
+    .check input{width:18px;height:18px;margin-top:2px}
+    .title{font-weight:600;font-size:14px;color:var(--text)}
+    .hint{margin-top:2px;font-size:13px;color:var(--muted2)}
+    .actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}
+    button{
+      border:1px solid var(--line2);border-radius:12px;padding:10px 12px;cursor:pointer;font-size:14px;
+      transition:transform .04s ease, filter .15s ease, background .15s ease, border-color .15s ease;
+    }
+    button:active{transform:translateY(1px)}
+    .primary{background:var(--primary);border-color:var(--primary);color:#fff}
+    .primary:hover{background:var(--primary2);border-color:var(--primary2)}
+    .secondary{background:#fff;color:var(--text)}
+    .secondary:hover{background:#f8fafc}
+    .ghost{background:transparent;color:var(--muted)}
+    .ghost:hover{background:#f8fafc;color:var(--text)}
+    .toolbar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:10px}
+    .spacer{flex:1}
+    .status{font-size:13px;color:var(--muted2);min-height:18px}
+    textarea{min-height:360px;line-height:1.5}
+    .small{margin:10px 0 0;color:var(--muted2);font-size:13px}
+    .summary{position:sticky;top:16px;display:grid;gap:12px}
+    .summary h3{margin:0 0 10px;font-size:14px;color:var(--muted);font-weight:700;letter-spacing:.2px;text-transform:uppercase}
+    .summaryline{display:flex;justify-content:space-between;gap:12px;font-size:14px}
+    .summaryline span{color:var(--muted)}
+    .summaryline strong{color:var(--text)}
+    .summarytotal{padding-top:10px;border-top:1px dashed var(--line2);margin-top:2px;font-size:15px}
+    .hr{height:1px;background:var(--line);margin:14px 0}
+    @media (max-width:980px){.main{grid-template-columns:1fr}.summary{position:static}}
+    @media (max-width:720px){.formgrid{grid-template-columns:1fr}textarea{min-height:300px}.meta{justify-content:flex-start}}
+  </style>
 </head>
+
 <body>
   <main class="wrap">
 
@@ -26,32 +109,23 @@
 
     <div class="main">
 
-      <!-- LEFT: Input + Text -->
       <div class="section">
-
         <section class="card">
           <h2>1) Absenderdaten</h2>
           <p class="desc">Name und Funktion werden in den Text eingesetzt. Das Pensum wird nur für die Berechnung verwendet.</p>
 
           <div class="formgrid">
-            <label>
-              Vorname Nachname
+            <label>Vorname Nachname
               <input id="fullName" type="text" placeholder="z.B. Reto Speerli" autocomplete="name" />
             </label>
-
-            <label>
-              Funktion / Stelle
+            <label>Funktion / Stelle
               <input id="role" type="text" placeholder="z.B. Klassenlehrperson" />
             </label>
-
-            <label>
-              Anstellungsgrad (%) (nur Berechnung)
+            <label>Anstellungsgrad (%) (nur Berechnung)
               <input id="pensum" type="number" min="1" max="100" step="1" placeholder="z.B. 80" />
             </label>
-
-            <label>
-              E-Mail (optional)
-              <input id="senderEmail" type="email" placeholder="z.B. vorname.nachname@..." autocomplete="email" />
+            <label>E-Mail (optional)
+              <input id="senderEmail" type="email" placeholder="z.B. vorname.nachname@…" autocomplete="email" />
             </label>
           </div>
 
@@ -83,9 +157,7 @@
             <button id="btnReset" type="button" class="secondary">Zurücksetzen</button>
           </div>
 
-          <p class="small">
-            Hinweis: Im Text steht standardmässig <strong>„Anstellungsgrad: vgl. Pensenvereinbarung“</strong>.
-          </p>
+          <p class="small">Hinweis: Im Text steht standardmässig <strong>„Anstellungsgrad: vgl. Pensenvereinbarung“</strong>.</p>
         </section>
 
         <section class="card">
@@ -111,10 +183,8 @@
 
           <p class="small">Tipp: Cursor ins Textfeld setzen → „Diktieren“ → Text wird am Cursor eingefügt (Chrome/Edge empfohlen).</p>
         </section>
-
       </div>
 
-      <!-- RIGHT: Summary -->
       <aside class="summary" aria-label="Zusammenfassung">
         <section class="card">
           <h3>Zusammenfassung</h3>
@@ -136,8 +206,8 @@
 
           <div class="hr"></div>
 
-          <p class="summarynote">
-            Empfänger (Outlook): <strong>stefan.baettig@pswaedenswil</strong><br />
+          <p class="small" style="margin:0">
+            Empfänger (Outlook): <strong>stefan.baettig@pswaedenswil</strong><br>
             Im kopierbaren Text wird keine E-Mail-Adresse ausgegeben.
           </p>
         </section>
@@ -146,6 +216,6 @@
     </div>
   </main>
 
-  <script src="app.js"></script>
+  <script src="./app.js"></script>
 </body>
 </html>
