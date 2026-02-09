@@ -21,39 +21,22 @@
       <div class="grid">
         <label>
           Vorname Nachname
-          <input id="fullName" type="text" placeholder="z.B. Reto Beispiel" autocomplete="name" />
+          <input id="fullName" type="text" placeholder="z.B. Reto Speerli" autocomplete="name" />
         </label>
 
         <label>
           Funktion / Stelle
-          <input id="role" type="text" placeholder="z.B. Lehrperson / Klassenassistenz" />
+          <input id="role" type="text" placeholder="z.B. Klassenlehrperson" />
         </label>
 
         <label>
-          Anstellungsgrad (%)
+          Anstellungsgrad (%) (nur für Berechnung)
           <input id="pensum" type="number" min="1" max="100" step="1" placeholder="z.B. 80" />
         </label>
 
         <label>
           E-Mail (optional)
           <input id="senderEmail" type="email" placeholder="z.B. vorname.nachname@..." autocomplete="email" />
-        </label>
-      </div>
-
-      <div class="grid">
-        <label class="span2">
-          Strasse + Nr. (optional)
-          <input id="senderStreet" type="text" placeholder="z.B. Musterstrasse 5" />
-        </label>
-
-        <label>
-          PLZ (optional)
-          <input id="senderZip" type="text" placeholder="z.B. 8820" />
-        </label>
-
-        <label>
-          Ort (optional)
-          <input id="senderCity" type="text" placeholder="z.B. Wädenswil" />
         </label>
       </div>
     </section>
@@ -74,7 +57,8 @@
       </div>
 
       <div class="hint">
-        <strong>Berechnung:</strong> Mobiltelefonpauschale wird proportional zum Pensum berechnet (z.B. 80% → CHF 200.–/Jahr).
+        <strong>Hinweis:</strong> Das Pensum wird nur für die Berechnung verwendet. Im E-Mail-Text steht standardmässig
+        «Anstellungsgrad: vgl. Pensenvereinbarung».
       </div>
 
       <div class="actions">
@@ -100,7 +84,7 @@
         <span id="dictStatus" class="status" aria-live="polite"></span>
       </div>
 
-      <textarea id="emailText" rows="16" spellcheck="true"
+      <textarea id="emailText" rows="18" spellcheck="true"
         placeholder="Hier erscheint der E-Mail-Fliesstext. Du kannst ihn frei bearbeiten oder diktieren."></textarea>
 
       <p class="small">
@@ -110,7 +94,7 @@
 
     <footer class="footer">
       <p class="small">
-        Empfängeradresse fix hinterlegt: Eintrachtstrasse 24, 8820 Wädenswil.
+        Empfänger (Outlook): stefan.baettig@pswaedenswil — im kopierbaren Text wird keine E-Mail-Adresse ausgegeben.
       </p>
     </footer>
   </main>
