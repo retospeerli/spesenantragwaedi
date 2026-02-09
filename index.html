@@ -9,111 +9,141 @@
 <body>
   <main class="wrap">
 
-    <header class="header">
-      <div>
-        <h1>Spesen-Textgenerator</h1>
-        <p class="sub">
-          Personalien eingeben → Pauschalen auswählen → Text generieren. Danach kannst du frei editieren oder diktieren und per Copy/Outlook versenden.
-        </p>
+    <header class="topbar">
+      <div class="brand">
+        <div class="logo" aria-hidden="true"></div>
+        <div>
+          <h1>Spesen-Textgenerator</h1>
+          <p>Offizieller E-Mail-Text mit Pauschalen – editierbar & diktierbar.</p>
+        </div>
       </div>
-      <div class="badge" title="Empfängeradresse im Text ist fix">
-        Schulverwaltung · Stefan Bättig · Eintrachtstrasse 24
+
+      <div class="meta">
+        <span class="pill">Empfänger im Text: Schulverwaltung · Stefan Bättig</span>
+        <span class="pill">Adresse: Eintrachtstrasse 24 · 8820 Wädenswil</span>
       </div>
     </header>
 
-    <div class="grid2">
-      <section class="card">
-        <h2>Absenderdaten</h2>
-        <p class="desc">Diese Angaben werden in den Text eingesetzt. Das Pensum wird nur für die Berechnung verwendet.</p>
+    <div class="main">
 
-        <div class="formgrid">
-          <label>
-            Vorname Nachname
-            <input id="fullName" type="text" placeholder="z.B. Reto Speerli" autocomplete="name" />
-          </label>
+      <!-- LEFT: Input + Text -->
+      <div class="section">
 
-          <label>
-            Funktion / Stelle
-            <input id="role" type="text" placeholder="z.B. Klassenlehrperson" />
-          </label>
+        <section class="card">
+          <h2>1) Absenderdaten</h2>
+          <p class="desc">Name und Funktion werden in den Text eingesetzt. Das Pensum wird nur für die Berechnung verwendet.</p>
 
-          <label>
-            Anstellungsgrad (%) (nur Berechnung)
-            <input id="pensum" type="number" min="1" max="100" step="1" placeholder="z.B. 80" />
-          </label>
+          <div class="formgrid">
+            <label>
+              Vorname Nachname
+              <input id="fullName" type="text" placeholder="z.B. Reto Speerli" autocomplete="name" />
+            </label>
 
-          <label>
-            E-Mail (optional)
-            <input id="senderEmail" type="email" placeholder="z.B. vorname.nachname@..." autocomplete="email" />
-          </label>
-        </div>
-      </section>
+            <label>
+              Funktion / Stelle
+              <input id="role" type="text" placeholder="z.B. Klassenlehrperson" />
+            </label>
 
-      <section class="card">
-        <h2>Pauschalen</h2>
-        <p class="desc">Live-Zusammenfassung wird unten automatisch aktualisiert.</p>
+            <label>
+              Anstellungsgrad (%) (nur Berechnung)
+              <input id="pensum" type="number" min="1" max="100" step="1" placeholder="z.B. 80" />
+            </label>
 
-        <div class="checks">
-          <label class="check">
-            <input id="chkMobile" type="checkbox" checked />
-            <div>
-              <div class="title">Mobiltelefonpauschale (Art. 12)</div>
-              <div class="hint">CHF 250.– pro Jahr × Pensum (z.B. 80% → CHF 200.–)</div>
-            </div>
-          </label>
+            <label>
+              E-Mail (optional)
+              <input id="senderEmail" type="email" placeholder="z.B. vorname.nachname@..." autocomplete="email" />
+            </label>
+          </div>
 
-          <label class="check">
-            <input id="chkMobility" type="checkbox" checked />
-            <div>
-              <div class="title">Mobilitätspauschale</div>
-              <div class="hint">CHF 150.– pro Jahr (fix)</div>
-            </div>
-          </label>
-        </div>
+          <div class="hr"></div>
 
-        <div class="summary" aria-live="polite">
-          <div class="line"><span>Mobiltelefonpauschale</span><strong id="sumMobile">—</strong></div>
-          <div class="line"><span>Mobilitätspauschale</span><strong id="sumMobility">—</strong></div>
-          <div class="line total"><span>Total (jährlich)</span><strong id="sumTotal">—</strong></div>
-        </div>
+          <h2>2) Pauschalen</h2>
+          <p class="desc">Wähle die Pauschalen aus. Die Zusammenfassung rechts aktualisiert sich automatisch.</p>
 
-        <div class="actions">
-          <button id="btnGenerate" type="button">Text generieren</button>
-          <button id="btnReset" type="button" class="ghost">Zurücksetzen</button>
-        </div>
+          <div class="checks">
+            <label class="check">
+              <input id="chkMobile" type="checkbox" checked />
+              <div>
+                <div class="title">Mobiltelefonpauschale (Art. 12)</div>
+                <div class="hint">CHF 250.– pro Jahr × Pensum (z.B. 80% → CHF 200.–)</div>
+              </div>
+            </label>
 
-        <p class="small">
-          Im Text steht standardmässig: <strong>Anstellungsgrad: vgl. Pensenvereinbarung</strong>.
-        </p>
-      </section>
-    </div>
+            <label class="check">
+              <input id="chkMobility" type="checkbox" checked />
+              <div>
+                <div class="title">Mobilitätspauschale</div>
+                <div class="hint">CHF 150.– pro Jahr (fix)</div>
+              </div>
+            </label>
+          </div>
 
-    <section class="card">
-      <h2>E-Mail-Text (editierbar)</h2>
-      <p class="desc">Hier kannst du den generierten Text direkt anpassen – per Tastatur oder Diktat.</p>
+          <div class="actions">
+            <button id="btnGenerate" type="button" class="primary">Text generieren</button>
+            <button id="btnReset" type="button" class="secondary">Zurücksetzen</button>
+          </div>
 
-      <div class="toolbar">
-        <button id="btnCopy" type="button">In Zwischenablage kopieren</button>
-        <button id="btnOutlook" type="button" title="Öffnet den Standard-Mailclient (typisch Outlook)">Per Outlook versenden</button>
+          <p class="small">
+            Hinweis: Im Text steht standardmässig <strong>„Anstellungsgrad: vgl. Pensenvereinbarung“</strong>.
+          </p>
+        </section>
 
-        <span id="copyStatus" class="status" aria-live="polite"></span>
-        <span id="outlookStatus" class="status" aria-live="polite"></span>
+        <section class="card">
+          <h2>3) E-Mail-Text</h2>
+          <p class="desc">Der Text ist frei editierbar. Du kannst ihn kopieren oder über den Standard-Mailclient (typisch Outlook) öffnen.</p>
 
-        <span class="spacer"></span>
+          <div class="toolbar">
+            <button id="btnCopy" type="button" class="secondary">In Zwischenablage kopieren</button>
+            <button id="btnOutlook" type="button" class="primary">Per Outlook versenden</button>
 
-        <button id="btnDictate" type="button" class="ghost">🎙️ Diktieren</button>
-        <button id="btnStopDictate" type="button" class="ghost" disabled>⏹️ Stop</button>
-        <span id="dictStatus" class="status" aria-live="polite"></span>
+            <span id="copyStatus" class="status" aria-live="polite"></span>
+            <span id="outlookStatus" class="status" aria-live="polite"></span>
+
+            <span class="spacer"></span>
+
+            <button id="btnDictate" type="button" class="ghost">🎙️ Diktieren</button>
+            <button id="btnStopDictate" type="button" class="ghost" disabled>⏹️ Stop</button>
+            <span id="dictStatus" class="status" aria-live="polite"></span>
+          </div>
+
+          <textarea id="emailText" spellcheck="true"
+            placeholder="Klicke auf „Text generieren“. Danach kannst du hier frei editieren oder diktieren."></textarea>
+
+          <p class="small">Tipp: Cursor ins Textfeld setzen → „Diktieren“ → Text wird am Cursor eingefügt (Chrome/Edge empfohlen).</p>
+        </section>
+
       </div>
 
-      <textarea id="emailText" spellcheck="true"
-        placeholder="Klicke auf „Text generieren“. Danach kannst du hier frei editieren oder diktieren."></textarea>
+      <!-- RIGHT: Summary -->
+      <aside class="summary" aria-label="Zusammenfassung">
+        <section class="card">
+          <h3>Zusammenfassung</h3>
 
-      <p class="small">
-        Diktat: Cursor ins Textfeld setzen → „Diktieren“ → Text wird am Cursor eingefügt (Chrome/Edge empfohlen).
-      </p>
-    </section>
+          <div class="summaryline">
+            <span>Mobiltelefonpauschale</span>
+            <strong id="sumMobile">—</strong>
+          </div>
 
+          <div class="summaryline">
+            <span>Mobilitätspauschale</span>
+            <strong id="sumMobility">—</strong>
+          </div>
+
+          <div class="summaryline summarytotal">
+            <span>Total (jährlich)</span>
+            <strong id="sumTotal">—</strong>
+          </div>
+
+          <div class="hr"></div>
+
+          <p class="summarynote">
+            Empfänger (Outlook): <strong>stefan.baettig@pswaedenswil</strong><br />
+            Im kopierbaren Text wird keine E-Mail-Adresse ausgegeben.
+          </p>
+        </section>
+      </aside>
+
+    </div>
   </main>
 
   <script src="app.js"></script>
