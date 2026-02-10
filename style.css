@@ -1,7 +1,3 @@
-/* ===============================
-   Professional UI (official-site style)
-   =============================== */
-
 :root{
   --bg: #f6f8fb;
   --card: #ffffff;
@@ -32,9 +28,6 @@ body{
                "Apple Color Emoji","Segoe UI Emoji";
   line-height: 1.45;
 }
-
-a{ color: var(--primary); text-decoration:none; }
-a:hover{ text-decoration:underline; }
 
 .wrap{
   max-width: 1120px;
@@ -105,6 +98,11 @@ a:hover{ text-decoration:underline; }
   align-items:start;
 }
 
+.section{
+  display:grid;
+  gap: 16px;
+}
+
 .card{
   background: var(--card);
   border: 1px solid var(--line);
@@ -117,18 +115,21 @@ a:hover{ text-decoration:underline; }
   margin:0 0 8px;
   font-size: 16px;
 }
-.card .desc{
+.card h3{
+  margin:0 0 10px;
+  font-size: 14px;
+  color: var(--muted);
+  font-weight: 700;
+  letter-spacing: .2px;
+  text-transform: uppercase;
+}
+
+.desc{
   margin:0 0 14px;
   color: var(--muted2);
   font-size: 13.5px;
 }
 
-.section{
-  display:grid;
-  gap: 16px;
-}
-
-/* Form */
 .formgrid{
   display:grid;
   grid-template-columns: 1fr 1fr;
@@ -160,8 +161,6 @@ input:focus, textarea:focus{
   border-color: rgba(29,78,216,.55);
 }
 
-.rowspan2{ grid-column: span 2; }
-
 .hr{
   height:1px;
   background: var(--line);
@@ -183,56 +182,52 @@ input:focus, textarea:focus{
   background: #fbfdff;
 }
 .check input{
-  width: 18px; height: 18px; margin-top: 2px;
+  width: 18px;
+  height: 18px;
+  margin-top: 2px;
 }
-.check .title{
+.title{
   font-weight: 600;
   font-size: 14px;
   color: var(--text);
 }
-.check .hint{
+.hint{
   margin-top: 2px;
   font-size: 13px;
   color: var(--muted2);
 }
 
-/* Summary (sticky on desktop) */
-.summary{
-  position: sticky;
-  top: 16px;
-  display:grid;
-  gap: 12px;
-}
-.summary .card{
-  padding: 16px;
-}
-.summary h3{
-  margin:0 0 10px;
-  font-size: 14px;
-  color: var(--muted);
-  font-weight: 700;
-  letter-spacing: .2px;
-  text-transform: uppercase;
-}
-.summaryline{
+/* Tone selector */
+.toneRow{
   display:flex;
-  justify-content:space-between;
-  gap:12px;
-  font-size: 14px;
+  align-items:center;
+  gap:10px;
+  padding: 10px 12px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background:#f8fafc;
 }
-.summaryline span{ color: var(--muted); }
-.summaryline strong{ color: var(--text); }
-.summarytotal{
-  padding-top: 10px;
-  border-top: 1px dashed var(--line2);
-  margin-top: 2px;
-  font-size: 15px;
+.toneBtn{
+  width: 42px;
+  height: 38px;
+  border-radius: 12px;
+  border: 1px solid var(--line2);
+  background:#ffffff;
+  cursor:pointer;
+  font-size: 18px;
+  line-height: 1;
+  transition: transform .04s ease, background .15s ease, border-color .15s ease;
 }
-.summarynote{
-  margin:0;
-  color: var(--muted2);
+.toneBtn:hover{ background:#f1f5f9; }
+.toneBtn:active{ transform: translateY(1px); }
+.toneBtn.active{
+  border-color: rgba(29,78,216,.55);
+  outline: 3px solid rgba(29,78,216,.14);
+  background:#eff6ff;
+}
+.toneLabel{
+  color: var(--muted);
   font-size: 13px;
-  line-height: 1.35;
 }
 
 /* Buttons */
@@ -257,7 +252,11 @@ button.primary{
   border-color: var(--primary);
   color:#fff;
 }
-button.primary:hover{ background: var(--primary2); border-color: var(--primary2); }
+button.primary:hover{
+  background: var(--primary2);
+  border-color: var(--primary2);
+}
+
 button.secondary{
   background: #ffffff;
   color: var(--text);
@@ -268,11 +267,15 @@ button.ghost{
   background: transparent;
   color: var(--muted);
 }
-button.ghost:hover{ background:#f8fafc; color: var(--text); }
+button.ghost:hover{
+  background:#f8fafc;
+  color: var(--text);
+}
 
 button:active{ transform: translateY(1px); }
 button:disabled{ opacity:.6; cursor:not-allowed; }
 
+/* Toolbar + status */
 .toolbar{
   display:flex;
   gap:10px;
@@ -302,15 +305,35 @@ textarea{
   font-size: 13px;
 }
 
+/* Summary (sticky) */
+.summary{
+  position: sticky;
+  top: 16px;
+  display:grid;
+  gap: 12px;
+}
+.summaryline{
+  display:flex;
+  justify-content:space-between;
+  gap:12px;
+  font-size: 14px;
+}
+.summaryline span{ color: var(--muted); }
+.summaryline strong{ color: var(--text); }
+.summarytotal{
+  padding-top: 10px;
+  border-top: 1px dashed var(--line2);
+  margin-top: 2px;
+  font-size: 15px;
+}
+
 /* Responsive */
 @media (max-width: 980px){
   .main{ grid-template-columns: 1fr; }
   .summary{ position: static; }
 }
-
 @media (max-width: 720px){
   .formgrid{ grid-template-columns: 1fr; }
-  .rowspan2{ grid-column: auto; }
   textarea{ min-height: 300px; }
   .meta{ justify-content:flex-start; }
 }
