@@ -1,4 +1,17 @@
+// =====================================================
+// Spesen-Textgenerator (PSW) – Full app.js
+// Features:
+// - first/last name separate; signature uses first name only
+// - tone selector (happy/neutral/grumpy)
+// - live summary (mobile + mobility + total)
+// - copy-to-clipboard with feedback
+// - mailto "Outlook" button
+// - dictation (Web Speech API, de-CH)
+// =====================================================
+
 const $ = (id) => document.getElementById(id);
+
+let currentTone = "neutral";
 
 function clampInt(n, min, max, fallback) {
   const x = Number.parseInt(n, 10);
@@ -13,20 +26,29 @@ function fmtCHF(amount) {
 
 function todayCH() {
   const d = new Date();
-  return d.toLocaleDateString("de-CH", { year: "numeric", month: "2-digit", day: "2-digit" });
+  return d.toLocaleDateString("de-CH", { day: "2-digit", month: "2-digit", year: "numeric" });
 }
 
+function setStatus(id, msg, cls = "", ms = 0) {
+  const el = $(id);
+  if (!el) return;
+  el.className = `status ${cls}`.trim();
+  el.textContent = msg;
+  if (ms > 0) setTimeout(() => { el.textContent = ""; el.className = "status"; }, ms);
+}
+
+// ===============================
+// Calculations
+// ===============================
 function computeMobileAnnual(pensumPct) {
   return 250 * (pensumPct / 100);
 }
 function computeMobilityAnnual() {
   return 150;
 }
-
 function computeTotals({ pensumPct, includeMobile, includeMobility }) {
   let total = 0;
   const parts = [];
-
   let mobile = 0;
   let mobility = 0;
 
@@ -40,17 +62,41 @@ function computeTotals({ pensumPct, includeMobile, includeMobility }) {
     total += mobility;
     parts.push({ label: "Mobilitätspauschale (jährlich)", amount: mobility });
   }
-
   return { total, parts, mobile, mobility };
 }
 
-function setStatus(id, msg, cls = "", ms = 0) {
-  const el = $(id);
-  el.className = `status ${cls}`.trim();
-  el.textContent = msg;
-  if (ms > 0) setTimeout(() => { el.textContent = ""; el.className = "status"; }, ms);
+// ===============================
+// Tone text blocks
+// ===============================
+function toneLabel(tone) {
+  if (tone === "happy") return "Wertschätzend";
+  if (tone === "grumpy") return "Mühsam, aber höflich";
+  return "Sachlich";
 }
 
+function toneIntro() {
+  if (currentTone === "happy") {
+    return "Besten Dank vorab für die Unterstützung und die stets konstruktive Zusammenarbeit.";
+  }
+  if (currentTone === "grumpy") {
+    return "Auch wenn das Verfahren unnötig aufwändig wirkt, reiche ich den Antrag hiermit formell ein.";
+  }
+  return "Hiermit beantrage ich die Ausrichtung der pauschalen Spesenentschädigungen gemäss den geltenden Regelungen.";
+}
+
+function toneClosing() {
+  if (currentTone === "happy") {
+    return "Herzlichen Dank für die Bearbeitung und eine kurze Bestätigung der Auszahlung.";
+  }
+  if (currentTone === "grumpy") {
+    return "Ich danke dir für die Prüfung und bitte um eine kurze Bestätigung der Auszahlung.";
+  }
+  return "Ich danke dir für die Bearbeitung und bitte um eine kurze Bestätigung der Auszahlung.";
+}
+
+// ===============================
+// Live summary
+// ===============================
 function updateSummary() {
   const pensumPct = clampInt($("pensum").value, 1, 100, 100);
   const includeMobile = $("chkMobile").checked;
@@ -64,10 +110,11 @@ function updateSummary() {
 }
 
 // ===============================
-// Generator (exact layout requested)
+// Email generation (fixed layout)
 // ===============================
 function generateEmailText() {
-  const fullName = $("fullName").value.trim() || "[Vorname Nachname]";
+  const firstName = $("firstName").value.trim() || "[Vorname]";
+  const lastName = $("lastName").value.trim() || "[Nachname]";
   const role = $("role").value.trim() || "[Funktion]";
   const pensumPct = clampInt($("pensum").value, 1, 100, 100);
 
@@ -95,9 +142,11 @@ Betreff: Antrag auf pauschale Spesenentschädigungen
 
 Lieber Stefan
 
-Hiermit beantrage ich die Ausrichtung der pauschalen Spesenentschädigungen gemäss den geltenden Regelungen. Meine Angaben:
+${toneIntro()}
 
-Name: ${fullName}
+Meine Angaben:
+
+Name: ${firstName} ${lastName}
 Funktion: ${role}
 Anstellungsgrad: vgl. Pensenvereinbarung
 
@@ -108,7 +157,11 @@ Total (jährlich): ${fmtCHF(total)}
 
 Ich bitte um Bestätigung der Auszahlung (inkl. Stichtag/Abrechnungsmodus) sowie um kurze Rückmeldung, falls ergänzende Angaben benötigt werden.
 
+${toneClosing()}
+
 Freundliche Grüsse
+
+${firstName}
 `;
 
   $("emailText").value = body;
@@ -119,8 +172,8 @@ Freundliche Grüsse
 // Clipboard
 // ===============================
 async function copyToClipboard() {
-  const text = $("emailText").value;
-  if (!text.trim()) {
+  const text = $("emailText").value.trim();
+  if (!text) {
     setStatus("copyStatus", "Bitte zuerst Text generieren.", "warn", 1600);
     return;
   }
@@ -140,7 +193,7 @@ async function copyToClipboard() {
 }
 
 // ===============================
-// Outlook / Mailto
+// Outlook (mailto)
 // ===============================
 function openOutlookMail() {
   const to = "stefan.baettig@pswaedenswil";
@@ -180,7 +233,7 @@ function initDictation() {
   recognition.onstart = () => {
     $("btnDictate").disabled = true;
     $("btnStopDictate").disabled = false;
-    setStatus("dictStatus", "Diktieren läuft…", "");
+    setStatus("dictStatus", "Diktieren läuft…");
   };
 
   recognition.onerror = (e) => {
@@ -190,7 +243,7 @@ function initDictation() {
   recognition.onend = () => {
     $("btnDictate").disabled = false;
     $("btnStopDictate").disabled = true;
-    setStatus("dictStatus", "", "");
+    setStatus("dictStatus", "");
     finalChunk = "";
   };
 
@@ -201,7 +254,8 @@ function initDictation() {
       if (event.results[i].isFinal) finalChunk += transcript;
       else interim += transcript;
     }
-    if (interim.trim()) setStatus("dictStatus", `…${interim.trim()}`, "");
+
+    if (interim.trim()) setStatus("dictStatus", `…${interim.trim()}`);
     if (finalChunk.trim()) {
       insertAtCursor($("emailText"), finalChunk);
       finalChunk = "";
@@ -229,19 +283,26 @@ function startDictation() {
   if (!recognition) return;
   try { recognition.start(); } catch {}
 }
-
 function stopDictation() {
   if (!recognition) return;
   recognition.stop();
 }
 
 // ===============================
-// Wiring
+// Reset
 // ===============================
 function resetFields() {
-  ["fullName","role","pensum","senderEmail"].forEach(id => $(id).value = "");
+  ["firstName","lastName","role","pensum"].forEach(id => $(id).value = "");
   $("chkMobile").checked = true;
   $("chkMobility").checked = true;
+
+  // tone back to neutral
+  currentTone = "neutral";
+  document.querySelectorAll(".toneBtn").forEach(b => b.classList.remove("active"));
+  const neutralBtn = document.querySelector('.toneBtn[data-tone="neutral"]');
+  if (neutralBtn) neutralBtn.classList.add("active");
+  $("toneLabel").textContent = toneLabel("neutral");
+
   $("emailText").value = "";
   setStatus("copyStatus", "");
   setStatus("outlookStatus", "");
@@ -249,14 +310,31 @@ function resetFields() {
   updateSummary();
 }
 
+// ===============================
+// Wiring
+// ===============================
 document.addEventListener("DOMContentLoaded", () => {
+  // tone buttons
+  document.querySelectorAll(".toneBtn").forEach(btn => {
+    btn.addEventListener("click", () => {
+      currentTone = btn.dataset.tone;
+
+      document.querySelectorAll(".toneBtn").forEach(b => b.classList.remove("active"));
+      btn.classList.add("active");
+      $("toneLabel").textContent = toneLabel(currentTone);
+
+      // update text immediately if exists or inputs present
+      generateEmailText();
+    });
+  });
+
   // buttons
   $("btnGenerate").addEventListener("click", generateEmailText);
   $("btnCopy").addEventListener("click", copyToClipboard);
   $("btnOutlook").addEventListener("click", openOutlookMail);
   $("btnReset").addEventListener("click", resetFields);
 
-  // live summary
+  // live summary updates
   ["pensum","chkMobile","chkMobility"].forEach(id => {
     $(id).addEventListener("input", updateSummary);
     $(id).addEventListener("change", updateSummary);
@@ -268,7 +346,7 @@ document.addEventListener("DOMContentLoaded", () => {
   $("btnDictate").addEventListener("click", startDictation);
   $("btnStopDictate").addEventListener("click", stopDictation);
 
-  // enter convenience
+  // convenience: Enter in pensum triggers generation
   $("pensum").addEventListener("keydown", (e) => {
     if (e.key === "Enter") generateEmailText();
   });
